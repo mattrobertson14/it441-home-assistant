@@ -7,8 +7,6 @@ ESP8266WiFiMulti wifiMulti;
 WiFiClient wifiClient;
 PubSubClient client("172.20.10.3", 1883, wifiClient);
 String device_name = "esp8266-door-sensor";
-const char* ssid1 = HOME_WIFI_SSID;
-const char* passwd1 = HOME_WIFI_PASSWORD;
 const char* ssid2 = MATT_HOTSPOT_SSID;
 const char* passwd2 = MATT_HOTSPOT_PASSWORD;
 
