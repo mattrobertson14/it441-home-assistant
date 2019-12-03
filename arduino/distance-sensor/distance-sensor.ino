@@ -5,7 +5,7 @@
 
 ESP8266WiFiMulti wifiMulti;
 WiFiClient wifiClient;
-PubSubClient client("172.20.10.3", 1883, wifiClient);
+PubSubClient client("172.20.10.14", 1883, wifiClient);
 String device_name = "esp8266-distance-sensor";
 const char* ssid1 = MATT_HOTSPOT_SSID;
 const char* passwd1 = MATT_HOTSPOT_PASSWORD;
@@ -40,10 +40,11 @@ void connectToWifi(){
 
 void reconnectToHub() {
   while (!client.connected()){
-    if (client.connect((char*) device_name.c_str())){
+    if (client.connect((char*) device_name.c_str(), "mqtt", "awesome")){
       Serial.println("Connected to MQTT Hub");
       String message = "Distance sensor (" + device_name + ") connected @ " + WiFi.localIP().toString();
       client.publish("/connections/distance", message.c_str());
+      client.publish("homeassistant/sensor/distance-sensor/config", "{\"name\": \"distance-sensor\", \"state_topic\": \"/distance\"}"); 
     } else {
       Serial.println("Connection to MQTT failed, trying again...");
       delay(3000);
@@ -75,6 +76,6 @@ void loop(){
   client.loop();
   if (millis() > timer_pointer + 1000){
     timer_pointer = millis();
-    client.publish("/distance/p", String(distance).c_str());
+    client.publish("/distance", String(distance).c_str());
   }
 }

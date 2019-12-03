@@ -5,7 +5,7 @@
 
 ESP8266WiFiMulti wifiMulti;
 WiFiClient wifiClient;
-PubSubClient client("172.20.10.3", 1883, wifiClient);
+PubSubClient client("172.20.10.14", 1883, wifiClient);
 String device_name = "esp8266-door-sensor";
 const char* ssid1 = MATT_HOTSPOT_SSID;
 const char* passwd1 = MATT_HOTSPOT_PASSWORD;
@@ -39,10 +39,11 @@ void connectToWifi(){
 
 void reconnectToHub() {
   while (!client.connected()){
-    if (client.connect((char*) device_name.c_str())){
+    if (client.connect((char*) device_name.c_str(), "mqtt", "awesome")){
       Serial.println("Connected to MQTT Hub");
       String message = "Door sensor (" + device_name + ") connected @ " + WiFi.localIP().toString();
       client.publish("/connections/door", message.c_str());
+      client.publish("homeassistant/sensor/door/config", "{\"name\": \"door\", \"state_topic\": \"/door\"}"); 
     } else {
       Serial.println("Connection to MQTT failed, trying again...");
       delay(3000);
@@ -77,6 +78,6 @@ void loop(){
 
   if (millis() > timer_pointer + 5000){
     timer_pointer = millis();
-    client.publish("/door/p", (door?"1":"0"));
+    client.publish("/door", (door?"1":"0"));
   }
 }

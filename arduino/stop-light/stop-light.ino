@@ -5,7 +5,7 @@
 
 ESP8266WiFiMulti wifiMulti;
 WiFiClient wifiClient;
-PubSubClient client("172.20.10.3", 1883, wifiClient);
+PubSubClient client("172.20.10.14", 1883, wifiClient);
 String device_name = "esp8266-stop-light";
 const char* ssid1 = MATT_HOTSPOT_SSID;
 const char* passwd1 = MATT_HOTSPOT_PASSWORD;
@@ -74,6 +74,7 @@ void handleMessage(String message){
     flash = false;
   }
   if (message == "flash" && !flash){
+    setLED("red");
     flash = true;
   }
 
@@ -82,12 +83,12 @@ void handleMessage(String message){
 
 void reconnectToHub() {
   while (!client.connected()){
-    if (client.connect((char*) device_name.c_str())){
+    if (client.connect((char*) device_name.c_str(), "mqtt", "awesome")){
       Serial.println("Connected to MQTT Hub");
       String message = "Stoplight (" + device_name + ") connected @ " + WiFi.localIP().toString();
       client.publish("/connections/stop-light", message.c_str());
-      client.subscribe("/door/#");
-      client.subscribe("/distance/#");
+      client.publish("homeassistant/sensor/stop-light/config", "{\"name\": \"stop-light\", \"state_topic\": \"/stop-light\"}"); 
+      client.subscribe("/stop-light/change");
     } else {
       Serial.println("Connection to MQTT failed, trying again...");
       delay(3000);
@@ -139,6 +140,10 @@ void loop(){
 
   if (millis() > timer_pointer + 5000){
     timer_pointer = millis();
-    client.publish("/stop-light/p")
+    if (!flash){
+      client.publish("/stop-light", getLED().c_str()); 
+    } else {
+      client.publish("/stop-light", String("flash").c_str());
+    }
   }
 }
