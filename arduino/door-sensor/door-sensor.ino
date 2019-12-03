@@ -7,8 +7,8 @@ ESP8266WiFiMulti wifiMulti;
 WiFiClient wifiClient;
 PubSubClient client("172.20.10.3", 1883, wifiClient);
 String device_name = "esp8266-door-sensor";
-const char* ssid2 = MATT_HOTSPOT_SSID;
-const char* passwd2 = MATT_HOTSPOT_PASSWORD;
+const char* ssid1 = MATT_HOTSPOT_SSID;
+const char* passwd1 = MATT_HOTSPOT_PASSWORD;
 
 bool prevDoor = false;
 bool door = false;
@@ -18,7 +18,6 @@ unsigned long timer_pointer = 0;
 void connectToWifi(){
   WiFi.mode(WIFI_STA);
   wifiMulti.addAP(ssid1, passwd1);
-  wifiMulti.addAP(ssid2, passwd2);
   
   Serial.print("\nConnecting");
   
